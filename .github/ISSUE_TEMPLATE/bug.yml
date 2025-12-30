@@ -1,0 +1,30 @@
+name: 🐛 버그 신고
+description: Project에서 실제 동작이 기대와 다를 때 사용하세요.
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: 버그 요약
+      placeholder: 예) 지도에 아이콘이 없음
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 절차
+      description: 어떤 순서로 했을 때 발생했는지 적어주세요.
+      placeholder: |
+        1. 밴드 모집 생성
+        4. 지도에 마커 안생김
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 동작
+      placeholder: 예) 지도에 마커
+  - type: textarea
+    id: env
+    attributes:
+      label: 환경
+      placeholder: 예) dev 서버 / Chrome 129 / 2025-10-30

@@ -1,0 +1,35 @@
+name: 📩 개선/요청
+description: 화면 수정, 설정 변경, 문서 요청 등 Project 개선사항을 남길 때 사용하세요.
+title: "[REQ] "
+labels: ["request"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: 요청 제목
+      placeholder: 예) 팀원 조회 인터페이스 요청
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 배경/상황
+      description: 어떤 업무를 하다가 필요했는지 적어주세요.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 요청 내용
+      placeholder: 예) 밴드 아이디로 팀원 조회
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - 낮음
+        - 보통
+        - 높음
