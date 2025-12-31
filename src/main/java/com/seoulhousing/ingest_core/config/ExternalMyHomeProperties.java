@@ -22,12 +22,16 @@ public class ExternalMyHomeProperties {
     private final String serviceKey;
 
     @Min(100)
-    private final long timeoutMs;
+    private final long connectTimeoutMs;
 
-    public ExternalMyHomeProperties(String baseUrl, String serviceKey, long timeoutMs) {
+    @Min(100)
+    private final long readTimeoutMs;
+
+    public ExternalMyHomeProperties(String baseUrl, String serviceKey, long connectTimeoutMs, long readTimeoutMs) {
         this.baseUrl = baseUrl;
         this.serviceKey = serviceKey;
-        this.timeoutMs = timeoutMs;
+        this.connectTimeoutMs = connectTimeoutMs;
+        this.readTimeoutMs = readTimeoutMs;
     }
 
 }
