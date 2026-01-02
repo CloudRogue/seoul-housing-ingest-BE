@@ -13,15 +13,6 @@ public class MyHomeListResponse {
     @JsonProperty("response")
     private Response response;
 
-    public void requireSuccess() {
-        if (response == null || response.header == null) {
-            throw new IllegalStateException("MyHome API 응답이 비정상(response/header null)");
-        }
-        if (!"00".equals(response.header.resultCode)) {
-            throw new IllegalStateException("MyHome API 실패: " + response.header.resultMsg);
-        }
-    }
-
     public List<MyHomeItemDto> itemsOrEmpty() {
         if (response == null || response.body == null || response.body.item == null) return List.of();
         return response.body.item;
