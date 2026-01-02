@@ -28,8 +28,8 @@ public class MyHomeRetryExecutor {
     public <T> T recover(ResourceAccessException e, String label, Supplier<T> supplier) {
 
         // 최종 실패 로그
-        log.error("[MyHome][{}] retry exhausted. msg={}", label, e.getMessage(), e);
+        log.error("[MyHome][{}] retry exhausted. ex={}", label, e.getClass().getSimpleName());
 
-        throw new IllegalStateException("MyHome API 재시도 실패: " + e.getMessage(), e);
+        throw new IllegalStateException("MyHome API 재시도 실패: " , e);
     }
 }

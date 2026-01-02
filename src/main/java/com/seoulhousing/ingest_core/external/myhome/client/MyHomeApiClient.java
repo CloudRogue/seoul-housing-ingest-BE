@@ -23,6 +23,7 @@ public class MyHomeApiClient {
     private final RestClient myHomeRestClient;
     private final ExternalMyHomeProperties properties;
     private final MyHomeRetryExecutor retry;
+    private final MyHomeLogSanitizer logSanitizer;
 
     private static final String PATH_RSDT_LIST = "/rsdtRcritNtcList";     // 공공임대
     private static final String PATH_LTRSDT_LIST = "/ltRsdtRcritNtcList"; // 공공분양
@@ -30,11 +31,13 @@ public class MyHomeApiClient {
     public MyHomeApiClient(
             @Qualifier("myHomeRestClient") RestClient myHomeRestClient,
             ExternalMyHomeProperties properties,
-            MyHomeRetryExecutor retry
+            MyHomeRetryExecutor retry,
+            MyHomeLogSanitizer logSanitizer
     ) {
         this.myHomeRestClient = myHomeRestClient;
         this.properties = properties;
         this.retry = retry;
+        this.logSanitizer = logSanitizer;
     }
 
     // 공공임대
@@ -52,35 +55,37 @@ public class MyHomeApiClient {
     // 공공임대 전용 콜
     private MyHomeListResponse callRsdt(MultiValueMap<String, String> queryParams) {
         URI uri = buildUri(PATH_RSDT_LIST, queryParams);
+        String safeUri = logSanitizer.toSafeLogUri(uri);
 
         RestClient.RequestHeadersSpec<?> spec = myHomeRestClient.get().uri(uri);
         spec.accept(MediaType.APPLICATION_JSON);
 
         MyHomeListResponse res = spec.retrieve().body(MyHomeListResponse.class);
 
-        validateResponse("RSDT", uri, res);
+        validateResponse("RSDT", safeUri, res);
         return res;
     }
 
     // 공공분양 전용 콜
     private MyHomeListResponse callLtRsdt(MultiValueMap<String, String> queryParams) {
         URI uri = buildUri(PATH_LTRSDT_LIST, queryParams);
+        String safeUri = logSanitizer.toSafeLogUri(uri);
 
         RestClient.RequestHeadersSpec<?> spec = myHomeRestClient.get().uri(uri);
         spec.accept(MediaType.APPLICATION_JSON);
 
         MyHomeListResponse res = spec.retrieve().body(MyHomeListResponse.class);
 
-        validateResponse("LTRSDT", uri, res);
+        validateResponse("LTRSDT", safeUri, res);
         return res;
     }
 
     // 응답구조 및 성공 코드 검증
-    private void validateResponse(String category, URI uri, MyHomeListResponse res) {
+    private void validateResponse(String category, String safeUri, MyHomeListResponse res) {
 
         // body가 널 값인지 검사하기
         if (res == null) {
-            log.error("[MyHome][{}] response body is null. uri={}", category, uri);
+            log.error("[MyHome][{}] response body is null. uri={}", category, safeUri);
             throw new IllegalStateException("MyHome API 응답이 null 입니다.");
         }
 
@@ -90,28 +95,29 @@ public class MyHomeApiClient {
 
 
         if (code == null) {
-            log.error("[MyHome][{}] resultCode is null (header missing). uri={}", category, uri);
+            log.error("[MyHome][{}] resultCode is null (header missing). uri={}", category, safeUri);
             throw new IllegalStateException("MyHome API 응답이 비정상(header/resultCode null)");
         }
 
         // 성공 코드가 아니면 비즈니스 실패로 처리
         if (!"00".equals(code)) {
-            log.warn("[MyHome][{}] api failure. uri={}, resultCode={}, resultMsg={}",
-                    category, uri, code, msg);
+            log.error("[MyHome][{}] api failure. uri={}, resultCode={}, resultMsg={}",
+                    category, safeUri, code, msg);
             throw new IllegalStateException("MyHome API 실패: " + msg);
         }
 
         // 성공코드인데 body가 널이면 추적 로그남김
         MyHomeListResponse.Body body = res.getBody();
         if (body == null) {
-            log.warn("[MyHome][{}] body is null though resultCode=00. uri={}", category, uri);
-            return;
+            log.error("[MyHome][{}] body is null though resultCode=00. uri={}", category, safeUri);
+            throw new IllegalStateException("MyHome API 응답 구조가 비정상입니다(body null)");
         }
 
         // item이 널이면 추적로그남김
         if (body.getItem() == null) {
-            log.warn("[MyHome][{}] item is null though resultCode=00. uri={}, totalCount={}",
-                    category, uri, body.getTotalCount());
+            log.error("[MyHome][{}] item is null though resultCode=00. uri={}, totalCount={}",
+                    category, safeUri, body.getTotalCount());
+            throw new IllegalStateException("MyHome API 응답 구조가 비정상입니다(item null)");
         }
     }
 
@@ -119,7 +125,7 @@ public class MyHomeApiClient {
         UriComponentsBuilder b = UriComponentsBuilder
                 .fromUriString(properties.getBaseUrl())
                 .path(path)
-                .queryParam("serviceKey", properties.getServiceKey())
+                .queryParam("serviceKey", properties.getServiceKey()) // 실제 호출에는 원본 사용
                 .queryParam("_type", "json");
 
         queryParams.forEach((k, values) -> values.forEach(v -> b.queryParam(k, v)));
