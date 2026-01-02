@@ -33,6 +33,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Retry
+    implementation 'org.springframework.retry:spring-retry:2.0.11'
+    implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+
 }
 
 tasks.named('test') {

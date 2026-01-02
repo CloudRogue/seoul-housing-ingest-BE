@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-
 import java.util.List;
 
 @Getter
@@ -13,6 +12,25 @@ public class MyHomeListResponse {
 
     @JsonProperty("response")
     private Response response;
+
+    public void requireSuccess() {
+        if (response == null || response.header == null) {
+            throw new IllegalStateException("MyHome API 응답이 비정상(response/header null)");
+        }
+        if (!"00".equals(response.header.resultCode)) {
+            throw new IllegalStateException("MyHome API 실패: " + response.header.resultMsg);
+        }
+    }
+
+    public List<MyHomeItemDto> itemsOrEmpty() {
+        if (response == null || response.body == null || response.body.item == null) return List.of();
+        return response.body.item;
+    }
+
+    public String totalCountOrNull() {
+        if (response == null || response.body == null) return null;
+        return response.body.totalCount;
+    }
 
     @Getter
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,12 +49,10 @@ public class MyHomeListResponse {
     @Getter
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Body {
-        // 공공 API는 숫자도 문자열로 오는 경우가 흔해서 String이 안전하기 때문에 이렇게 설정
         private String totalCount;
         private String numOfRows;
         private String pageNo;
 
-        // item이 단건 object로 와도 List로 받아지게 방어
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         private List<MyHomeItemDto> item;
     }
