@@ -13,6 +13,19 @@ public class MyHomeListResponse {
     @JsonProperty("response")
     private Response response;
 
+
+    // 결과값을 제공해주도록 설정하기
+    public String getResultCode() {
+        return (response == null || response.header == null) ? null : response.header.resultCode;
+    }
+    public String getResultMsg() {
+        return (response == null || response.header == null) ? null : response.header.resultMsg;
+    }
+    public Body getBody() {
+        return (response == null) ? null : response.body;
+    }
+
+
     public List<MyHomeItemDto> itemsOrEmpty() {
         if (response == null || response.body == null || response.body.item == null) return List.of();
         return response.body.item;

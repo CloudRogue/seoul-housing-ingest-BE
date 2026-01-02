@@ -53,13 +53,10 @@ public class MyHomeApiClient {
     private MyHomeListResponse callRsdt(MultiValueMap<String, String> queryParams) {
         URI uri = buildUri(PATH_RSDT_LIST, queryParams);
 
-        RestClient.RequestHeadersUriSpec<?> uriSpec = myHomeRestClient.get();
-        RestClient.RequestHeadersSpec<?> headersSpec = uriSpec.uri(uri);
-        headersSpec = headersSpec.accept(MediaType.APPLICATION_JSON);
+        RestClient.RequestHeadersSpec<?> spec = myHomeRestClient.get().uri(uri);
+        spec.accept(MediaType.APPLICATION_JSON);
 
-        MyHomeListResponse res = headersSpec
-                .retrieve()
-                .body(MyHomeListResponse.class);
+        MyHomeListResponse res = spec.retrieve().body(MyHomeListResponse.class);
 
         validateResponse("RSDT", uri, res);
         return res;
@@ -69,55 +66,52 @@ public class MyHomeApiClient {
     private MyHomeListResponse callLtRsdt(MultiValueMap<String, String> queryParams) {
         URI uri = buildUri(PATH_LTRSDT_LIST, queryParams);
 
-        RestClient.RequestHeadersUriSpec<?> uriSpec = myHomeRestClient.get();
-        RestClient.RequestHeadersSpec<?> headersSpec = uriSpec.uri(uri);
-        headersSpec = headersSpec.accept(MediaType.APPLICATION_JSON);
+        RestClient.RequestHeadersSpec<?> spec = myHomeRestClient.get().uri(uri);
+        spec.accept(MediaType.APPLICATION_JSON);
 
-        MyHomeListResponse res = headersSpec
-                .retrieve()
-                .body(MyHomeListResponse.class);
+        MyHomeListResponse res = spec.retrieve().body(MyHomeListResponse.class);
 
         validateResponse("LTRSDT", uri, res);
         return res;
     }
 
-    // 응답구조및 성공 코드 검증
+    // 응답구조 및 성공 코드 검증
     private void validateResponse(String category, URI uri, MyHomeListResponse res) {
-        if (res == null) { // body 자체가 null인지 검사하기
+
+        // body가 널 값인지 검사하기
+        if (res == null) {
             log.error("[MyHome][{}] response body is null. uri={}", category, uri);
             throw new IllegalStateException("MyHome API 응답이 null 입니다.");
         }
 
-        if (res.getResponse() == null) { // response가 없는지 검사하기
-            log.error("[MyHome][{}] response is null. uri={}", category, uri);
-            throw new IllegalStateException("MyHome API 응답이 비정상(response null)");
-        }
-
-        if (res.getResponse().getHeader() == null) { // header가 없는지 검사하기
-            log.error("[MyHome][{}] header is null. uri={}", category, uri);
-            throw new IllegalStateException("MyHome API 응답이 비정상(header null)");
-        }
-
         // 결과 코드 및 메시지
-        String code = res.getResponse().getHeader().getResultCode();
-        String msg  = res.getResponse().getHeader().getResultMsg();
+        String code = res.getResultCode();
+        String msg  = res.getResultMsg();
 
-        // 성공 코드가 아니면 비즈니스 실패라고 보고 예외터트리기
+
+        if (code == null) {
+            log.error("[MyHome][{}] resultCode is null (header missing). uri={}", category, uri);
+            throw new IllegalStateException("MyHome API 응답이 비정상(header/resultCode null)");
+        }
+
+        // 성공 코드가 아니면 비즈니스 실패로 처리
         if (!"00".equals(code)) {
             log.warn("[MyHome][{}] api failure. uri={}, resultCode={}, resultMsg={}",
                     category, uri, code, msg);
             throw new IllegalStateException("MyHome API 실패: " + msg);
         }
 
-        // 성공코드인데 예상한 값과 다르면 추적 로그 남기기
-        if (res.getResponse().getBody() == null) {
+        // 성공코드인데 body가 널이면 추적 로그남김
+        MyHomeListResponse.Body body = res.getBody();
+        if (body == null) {
             log.warn("[MyHome][{}] body is null though resultCode=00. uri={}", category, uri);
             return;
         }
 
-        if (res.getResponse().getBody().getItem() == null) {
+        // item이 널이면 추적로그남김
+        if (body.getItem() == null) {
             log.warn("[MyHome][{}] item is null though resultCode=00. uri={}, totalCount={}",
-                    category, uri, res.getResponse().getBody().getTotalCount());
+                    category, uri, body.getTotalCount());
         }
     }
 
