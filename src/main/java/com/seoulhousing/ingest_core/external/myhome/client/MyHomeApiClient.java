@@ -14,16 +14,19 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.regex.Pattern;
 
 @Component
 public class MyHomeApiClient {
 
     private static final Logger log = LoggerFactory.getLogger(MyHomeApiClient.class);
 
+    private static final Pattern SERVICE_KEY_PATTERN =
+            Pattern.compile("(serviceKey=)([^&]+)",Pattern.CASE_INSENSITIVE); // 혹시 몰라서 대소문자 무시
+
     private final RestClient myHomeRestClient;
     private final ExternalMyHomeProperties properties;
     private final MyHomeRetryExecutor retry;
-    private final MyHomeLogSanitizer logSanitizer;
 
     private static final String PATH_RSDT_LIST = "/rsdtRcritNtcList";     // 공공임대
     private static final String PATH_LTRSDT_LIST = "/ltRsdtRcritNtcList"; // 공공분양
@@ -31,13 +34,11 @@ public class MyHomeApiClient {
     public MyHomeApiClient(
             @Qualifier("myHomeRestClient") RestClient myHomeRestClient,
             ExternalMyHomeProperties properties,
-            MyHomeRetryExecutor retry,
-            MyHomeLogSanitizer logSanitizer
+            MyHomeRetryExecutor retry
     ) {
         this.myHomeRestClient = myHomeRestClient;
         this.properties = properties;
         this.retry = retry;
-        this.logSanitizer = logSanitizer;
     }
 
     // 공공임대
@@ -55,10 +56,10 @@ public class MyHomeApiClient {
     // 공공임대 전용 콜
     private MyHomeListResponse callRsdt(MultiValueMap<String, String> queryParams) {
         URI uri = buildUri(PATH_RSDT_LIST, queryParams);
-        String safeUri = logSanitizer.toSafeLogUri(uri);
+        String safeUri = toSafeLogUri(uri); //안전하게 마스킹 해두기
 
         RestClient.RequestHeadersSpec<?> spec = myHomeRestClient.get().uri(uri);
-        spec.accept(MediaType.APPLICATION_JSON);
+        spec = spec.accept(MediaType.APPLICATION_JSON);
 
         MyHomeListResponse res = spec.retrieve().body(MyHomeListResponse.class);
 
@@ -69,10 +70,10 @@ public class MyHomeApiClient {
     // 공공분양 전용 콜
     private MyHomeListResponse callLtRsdt(MultiValueMap<String, String> queryParams) {
         URI uri = buildUri(PATH_LTRSDT_LIST, queryParams);
-        String safeUri = logSanitizer.toSafeLogUri(uri);
+        String safeUri = toSafeLogUri(uri); //안전하게 마스킹 해두기
 
         RestClient.RequestHeadersSpec<?> spec = myHomeRestClient.get().uri(uri);
-        spec.accept(MediaType.APPLICATION_JSON);
+        spec = spec.accept(MediaType.APPLICATION_JSON);
 
         MyHomeListResponse res = spec.retrieve().body(MyHomeListResponse.class);
 
@@ -121,11 +122,30 @@ public class MyHomeApiClient {
         }
     }
 
+    private static String toSafeLogUri(URI uri) {
+        if (uri == null) return "null";
+
+        String path = (uri.getRawPath() == null) ? "" : uri.getRawPath();
+        String query = uri.getRawQuery();
+
+        String raw = (query == null || query.isBlank())
+                ? path
+                : path + "?" + query;
+
+        return maskServiceKey(raw);
+    }
+
+    private static String maskServiceKey(String raw) {
+        if (raw == null) return "null";
+        return SERVICE_KEY_PATTERN.matcher(raw).replaceAll("$1****");
+    }
+
+
     private URI buildUri(String path, MultiValueMap<String, String> queryParams) {
         UriComponentsBuilder b = UriComponentsBuilder
                 .fromUriString(properties.getBaseUrl())
                 .path(path)
-                .queryParam("serviceKey", properties.getServiceKey()) // 실제 호출에는 원본 사용
+                .queryParam("serviceKey", properties.getServiceKey())
                 .queryParam("_type", "json");
 
         queryParams.forEach((k, values) -> values.forEach(v -> b.queryParam(k, v)));
