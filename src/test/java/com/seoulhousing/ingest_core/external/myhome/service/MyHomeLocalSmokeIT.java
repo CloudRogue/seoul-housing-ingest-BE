@@ -5,6 +5,7 @@ import com.seoulhousing.ingest_core.external.myhome.client.MyHomeApiClient;
 import com.seoulhousing.ingest_core.external.myhome.dto.LtRsdtListRequest;
 import com.seoulhousing.ingest_core.external.myhome.dto.MyHomeItemDto;
 import com.seoulhousing.ingest_core.external.myhome.dto.RsdtListRequest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ExtendWith(OutputCaptureExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Tag("it")
 class MyHomeLocalSmokeIT {
 
     @Autowired
