@@ -83,4 +83,35 @@ public class RsdtListRequest {
         return (v == null || v.isBlank()) ? null : v.trim();
     }
 
+
+    // 페이지 넘버 바꿔주는 메서드
+    public RsdtListRequest withPageNo(int pageNo) {
+        return new RsdtListRequest(
+                pageNo,
+                this.numOfRows,
+                this.brtcCode,
+                this.signguCode,
+                this.houseTy,
+                this.yearMtBegin,
+                this.yearMtEnd,
+                this.suplyTy,
+                this.lfstsTyAt,
+                this.bassMtRntchrgSe
+        );
+    }
+
+    public RsdtListRequest withBrtcCode(String brtcCode) {
+        return new RsdtListRequest(
+                this.pageNo,
+                this.numOfRows,
+                brtcCode,
+                this.signguCode,
+                this.houseTy,
+                this.yearMtBegin,
+                this.yearMtEnd,
+                this.suplyTy,
+                this.lfstsTyAt,
+                this.bassMtRntchrgSe
+        );
+    }
 }
