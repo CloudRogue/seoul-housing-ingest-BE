@@ -102,6 +102,13 @@ public class MyHomeApiClient {
 
         // 성공 코드가 아니면 비즈니스 실패로 처리
         if (!"00".equals(code)) {
+
+            // 데이터가 없는 경우 정상 결과로 취급
+            if ("03".equals(code) && "NODATA_ERROR".equalsIgnoreCase(msg)) {
+                log.info("[MyHome][{}] no data. uri={}", category, safeUri);
+                return;
+            }
+
             log.error("[MyHome][{}] api failure. uri={}, resultCode={}, resultMsg={}",
                     category, safeUri, code, msg);
             throw new IllegalStateException("MyHome API 실패: " + msg);

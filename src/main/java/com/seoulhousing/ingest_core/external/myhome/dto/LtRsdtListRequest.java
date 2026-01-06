@@ -63,4 +63,29 @@ public class LtRsdtListRequest {
     private static String normalizeBlankToNull(String v) {
         return (v == null || v.isBlank()) ? null : v.trim();
     }
+
+    public LtRsdtListRequest withPageNo(int pageNo) {
+        return new LtRsdtListRequest(
+                pageNo,
+                this.numOfRows,
+                this.brtcCode,
+                this.signguCode,
+                this.houseTy,
+                this.yearMtBegin,
+                this.yearMtEnd
+        );
+    }
+
+    public LtRsdtListRequest withBrtcCode(String brtcCode) {
+        return new LtRsdtListRequest(
+                this.pageNo,
+                this.numOfRows,
+                brtcCode,
+                this.signguCode,
+                this.houseTy,
+                this.yearMtBegin,
+                this.yearMtEnd
+        );
+    }
+
 }
