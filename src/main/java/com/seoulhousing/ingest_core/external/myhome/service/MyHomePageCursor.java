@@ -19,18 +19,18 @@ public final class MyHomePageCursor {
         this.fetchByPageNo = Objects.requireNonNull(fetchByPageNo);
     }
 
-    public Optional<List<MyHomeItemDto>> next() {
-        if (finished) return Optional.empty();
+    public List<MyHomeItemDto> next() {
+        if (finished) return null;
 
         MyHomeListResponse res = fetchByPageNo.apply(pageNo);
         List<MyHomeItemDto> items = res.itemsOrEmpty();
 
         if (items.isEmpty()) {
             finished = true;
-            return Optional.empty();
+            return null;
         }
 
         pageNo++;
-        return Optional.of(items);
+        return items;
     }
 }

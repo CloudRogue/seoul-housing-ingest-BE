@@ -36,9 +36,9 @@ public class SeoulLtRsdtCollector implements LtRsdtCollector {
 
         List<MyHomeItemDto> acc = new ArrayList<>();
 
-        Optional<List<MyHomeItemDto>> itemsOpt;
-        while ((itemsOpt = cursor.next()).isPresent()) {
-            acc.addAll(itemsOpt.get());
+        List<MyHomeItemDto> items;
+        while ((items = cursor.next()) != null) {
+            acc.addAll(items);
         }
 
         log.info("[MyHome][LTRSDT][seoul] collected={}", acc.size());

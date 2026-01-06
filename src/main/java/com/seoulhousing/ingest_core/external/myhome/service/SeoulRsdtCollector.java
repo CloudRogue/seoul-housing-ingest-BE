@@ -38,9 +38,9 @@ public class SeoulRsdtCollector implements RsdtCollector {
         List<MyHomeItemDto> acc = new ArrayList<>();
 
         // 한번 더 호출해서 만약 빈값이다?? 그럼 종료
-        Optional<List<MyHomeItemDto>> itemsOpt;
-        while ((itemsOpt = cursor.next()).isPresent()) {
-            acc.addAll(itemsOpt.get());
+        List<MyHomeItemDto> items;
+        while ((items = cursor.next()) != null) {
+            acc.addAll(items);
         }
 
         log.info("[MyHome][RSDT][seoul] collected={}", acc.size());
