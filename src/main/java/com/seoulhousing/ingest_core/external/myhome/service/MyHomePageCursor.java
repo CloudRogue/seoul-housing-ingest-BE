@@ -5,7 +5,6 @@ import com.seoulhousing.ingest_core.external.myhome.dto.MyHomeListResponse;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.IntFunction;
 
 // 페이지 전용 객체
