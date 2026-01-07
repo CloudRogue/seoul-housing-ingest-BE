@@ -21,7 +21,7 @@ public class RedisMyHomeSnapshotReaderAdapter implements MyHomeSnapshotReaderPor
 
     public RedisMyHomeSnapshotReaderAdapter(
             @Qualifier("redisBytesTemplate") RedisTemplate<String, byte[]> redisBytesTemplate,
-            @Qualifier("redisTemplate") RedisTemplate<String, String> redisTemplate,
+            @Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             RedisKeyFactory keyFactory
     ) {
         this.redisBytesTemplate = redisBytesTemplate;
