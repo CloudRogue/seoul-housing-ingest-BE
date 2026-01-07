@@ -44,8 +44,8 @@ public class ShRssApiClient {
 
         RestClient.RequestHeadersSpec<?> spec = shRssRestClient.get().uri(url);
 
-        //Rss응답이 xml이니까 accept를 xml로 설정하기 만약 명확하지 않다? 올로 허용
-        spec = spec.accept(MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.ALL);
+        //Rss응답이 xml이니까 accept를 xml로 설정하기
+        spec = spec.accept(MediaType.APPLICATION_XML, MediaType.TEXT_XML);
 
         byte[] bytes = spec.retrieve().body(byte[].class);
 
@@ -54,7 +54,7 @@ public class ShRssApiClient {
             throw new IllegalStateException("SH RSS 응답이 비어있음");
         }
 
-        log.info("[SH][RSS] fetched bytes={}", bytes.length);
+        log.debug("[SH][RSS] fetched bytes={}", bytes.length);
 
         return bytes;
     }
