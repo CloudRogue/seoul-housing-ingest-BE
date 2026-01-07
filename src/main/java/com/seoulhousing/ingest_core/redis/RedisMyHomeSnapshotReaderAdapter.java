@@ -43,6 +43,10 @@ public class RedisMyHomeSnapshotReaderAdapter implements MyHomeSnapshotReaderPor
     @Nullable
     @Override
     public String getChecksum(String category, String scope, String stdId) {
+        if (stdId == null || stdId.isBlank()) {
+            throw new IllegalArgumentException("stdId must not be null/blank");
+        }
+
         String checksumKey = keyFactory.checksumKey(category, scope);
         Object v = redisTemplate.opsForHash().get(checksumKey, stdId);
         return (v == null) ? null : v.toString();
