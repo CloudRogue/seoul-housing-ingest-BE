@@ -11,8 +11,7 @@ public class RedisKeyFactory {
     //env값 주입
     private final EnvProvider envProvider;
 
-    //키버전과 소스 고정
-    private static final String SOURCE = "myhome";
+    //키버전 고정
     private static final String VERSION = "v1";
 
     public RedisKeyFactory(EnvProvider envProvider) {
@@ -20,26 +19,40 @@ public class RedisKeyFactory {
     }
 
     // 스냅샷 체크섬,메타 키 생성
-    public String snapshotKey(String category, String scope) {
-        return snapshotKey(category, scope, VERSION);
+    public String snapshotKey(String source, String category, String scope) {
+        return snapshotKey(source, category, scope, VERSION);
     }
-    public String checksumKey(String category, String scope) {
-        return checksumKey(category, scope, VERSION);
+
+    public String checksumKey(String source, String category, String scope) {
+        return checksumKey(source, category, scope, VERSION);
     }
-    public String metaKey(String category, String scope) {
-        return metaKey(category, scope, VERSION);
+    public String metaKey(String source, String category, String scope) {
+        return metaKey(source, category, scope, VERSION);
     }
 
 
     // 버전지정 가능하게 키생성 왜냐하면 다른버전과 혼용될수도있으니
-    public String snapshotKey(String category, String scope, String version) {
-        return basePrefix() + ":" + SOURCE + ":" + norm(category) + ":" + norm(scope) + ":snapshot:" + norm(version);
+    public String snapshotKey(String source, String category, String scope, String version) {
+        return basePrefix()
+                + ":" + norm(source)
+                + ":" + norm(category)
+                + ":" + norm(scope)
+                + ":snapshot:" + norm(version);
     }
-    public String checksumKey(String category, String scope, String version) {
-        return basePrefix() + ":" + SOURCE + ":" + norm(category) + ":" + norm(scope) + ":checksum:" + norm(version);
+    public String checksumKey(String source, String category, String scope, String version) {
+        return basePrefix()
+                + ":" + norm(source)
+                + ":" + norm(category)
+                + ":" + norm(scope)
+                + ":checksum:" + norm(version);
     }
-    public String metaKey(String category, String scope, String version) {
-        return basePrefix() + ":" + SOURCE + ":" + norm(category) + ":" + norm(scope) + ":meta:" + norm(version);
+
+    public String metaKey(String source, String category, String scope, String version) {
+        return basePrefix()
+                + ":" + norm(source)
+                + ":" + norm(category)
+                + ":" + norm(scope)
+                + ":meta:" + norm(version);
     }
 
 
