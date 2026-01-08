@@ -8,15 +8,10 @@ import org.springframework.web.client.RestClient;
 import java.net.http.HttpClient;
 import java.time.Duration;
 
-/**
- * 외부 공공데이터(MyHome) API 호출에 사용할 RestClient Bean 설정.
- *
- * <p>application.yml에 정의된 external.myhome 설정값을 {@link ExternalMyHomeProperties}로 바인딩 받아
- * baseUrl 및 timeout(connect/read)을 공통 적용한 RestClient를 생성한다.</p>
- */
+
 
 @Configuration
-@EnableConfigurationProperties(ExternalMyHomeProperties.class)
+@EnableConfigurationProperties({ExternalMyHomeProperties.class, ExternalShRssProperties.class})
 public class RestClientConfig {
 
     @Bean("myHomeRestClient")
@@ -33,6 +28,20 @@ public class RestClientConfig {
 
         return RestClient.builder()
                 .baseUrl(properties.getBaseUrl())
+                .requestFactory(requestFactory)
+                .build();
+    }
+
+    @Bean("shRssRestClient")
+    public RestClient shRssRestClient(ExternalShRssProperties properties) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(properties.getConnectTimeoutMs()))
+                .build();
+
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+        requestFactory.setReadTimeout(Duration.ofMillis(properties.getReadTimeoutMs()));
+
+        return RestClient.builder()
                 .requestFactory(requestFactory)
                 .build();
     }

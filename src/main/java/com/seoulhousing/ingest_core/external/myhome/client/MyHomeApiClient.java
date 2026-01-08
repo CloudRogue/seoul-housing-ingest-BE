@@ -105,7 +105,7 @@ public class MyHomeApiClient {
 
             // 데이터가 없는 경우 정상 결과로 취급
             if ("03".equals(code) && "NODATA_ERROR".equalsIgnoreCase(msg)) {
-                log.info("[MyHome][{}] no data. uri={}", category, safeUri);
+                log.debug("[MyHome][{}] no data. uri={}", category, safeUri);
                 return;
             }
 

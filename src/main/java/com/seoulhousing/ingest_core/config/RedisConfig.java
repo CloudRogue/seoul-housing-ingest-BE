@@ -26,8 +26,8 @@ public class RedisConfig {
     }
 
     // 문자열 기반으로 쓰기좋은 레디스템플릿 빈으로 등록
-    @Bean(name="stringRedisTemplate")
-    public RedisTemplate<String, String> stringRedisTemplate(RedisConnectionFactory connectionFactory) {
+    @Bean(name="redisStringTemplate")
+    public RedisTemplate<String, String> redisStringTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory); //레디스 연결 주입
 
