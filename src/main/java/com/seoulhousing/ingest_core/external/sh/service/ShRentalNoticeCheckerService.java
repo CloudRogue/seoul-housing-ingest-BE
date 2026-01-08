@@ -39,8 +39,8 @@ public class ShRentalNoticeCheckerService implements ShRentalNoticeChecker{
         // 신규임대공고가 있나 확인
         ShRssDiffResult result = diff.diff(items, lastSeenSeq);
 
-        // 운영 로그 확인
-        log.info(
+
+        log.debug(
                 "[SH][RSS] diff result. hasNewRental={}, lastSeenFound={}, lastSeenSeq={}, latestSeq={}, items={}",
                 result.isHasNewRental(),          // 신규 임대 공고 있냐
                 result.isLastSeenFound(),         // lastSeenSeq를 RSS에서 찾았냐(동기화 판단)

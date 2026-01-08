@@ -10,11 +10,8 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -89,7 +86,7 @@ public class ShRssXmlParser {
                     switch (currentTag) {
                         case "title" -> curTitle = append(curTitle, text);
                         case "link" -> curLink = append(curLink, text);
-                        case "pubDate" -> curPubDateText = append(curPubDateText, text); // 🔥 누적
+                        case "pubDate" -> curPubDateText = append(curPubDateText, text);
                     }
                 }
 
