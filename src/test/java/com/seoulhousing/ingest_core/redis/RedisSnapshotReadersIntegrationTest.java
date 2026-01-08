@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Tag("it")
+
 class RedisSnapshotReadersIntegrationTest {
 
     private static final String MYHOME_SOURCE = "myhome";
