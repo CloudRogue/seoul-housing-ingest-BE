@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -21,42 +23,73 @@ public class ShRssRentalNoticeDiff {
             throw new IllegalArgumentException("lastSeenSeq must not be null/blank");
         }
 
+        // 정렬 보장하기 pubdate 내림차순으로 그다음 seq 만약 pubDate가 널이면 제일 뒤로 보냄
+        Comparator<java.time.Instant> pubDescNullLast =
+                Comparator.nullsLast(Comparator.reverseOrder());
+
+        Comparator<Long> seqDescNullLast =
+                Comparator.nullsLast(Comparator.reverseOrder());
+
+        List<ShRssItem> sorted = new ArrayList<>(items);
+        sorted.sort(
+                Comparator.comparing(ShRssItem::getPublishedAt, pubDescNullLast)
+                        .thenComparing(item -> parseSeqAsLongOrNull(item.getSeq()), seqDescNullLast)
+        );
+
+
+        String latestSeq = sorted.isEmpty() ? null : sorted.get(0).getSeq();
+
+        // lastSeenSeq를 만날때까지검사
         boolean lastSeenFound = false;
-        boolean hasNewRental = false;
+        List<ShRssItem> newRentalItems = new ArrayList<>();
 
-        //lastseen 갱신용으로 사용
-        String latestSeq = items.isEmpty() ? null : items.get(0).getSeq();
-
-        for (ShRssItem item : items) {
-
+        for (ShRssItem item : sorted) {
             String seq = item.getSeq();
             String title = item.getTitle();
+            String link = item.getLink();
 
-            if (seq == null || title == null) continue;
+            if (seq == null || seq.isBlank()) continue;
+            if (title == null || title.isBlank()) continue;
+            if (link == null || link.isBlank()) continue;
 
-            //원하는 값 찾았다?? 그럼 바로 멈추기
             if (lastSeenSeq.equals(seq)) {
                 lastSeenFound = true;
                 break;
             }
 
-            if (isRentalTitle(title)) {
-                hasNewRental = true;
+            if(isRentalTitle(title)) {
+                newRentalItems.add(item);
             }
+
+        }
+        if (!lastSeenFound) { // lastSeenSeq를 끝까지 못 찾은 경우 로그로 띄워주기
+            log.warn("[SH][RSS] lastSeenSeq not found. lastSeenSeq={}, latestSeq={}, items={}",
+                    lastSeenSeq,
+                    latestSeq,
+                    sorted.size());
+            return new ShRssDiffResult(false, false, latestSeq, List.of());
         }
 
-        //lastSeenSeq를 찾지 못했다면 Rss보관 범위 밖이거나 저장값 불일치일 가능성 높음
-        if(!lastSeenFound){
-            log.warn("[SH][RSS] lastSeenSeq not found. lastSeenSeq={}, latestSeq={}",
-                    lastSeenSeq, latestSeq);
-            return new ShRssDiffResult(false, false, latestSeq);
-        }
+        boolean hasNewRental = !newRentalItems.isEmpty();
 
-        return new ShRssDiffResult(hasNewRental, true, latestSeq);
+        return new ShRssDiffResult(hasNewRental, true, latestSeq, newRentalItems);
+
+
+
+
+
     }
 
     // 임대가 포함되면 그냥 임대공고로 본다(1차 필터링느낌)
     private static boolean isRentalTitle(String title) {
         return title.contains("임대");
+    }
+
+    private static Long parseSeqAsLongOrNull(String seq) {
+        try {
+            return Long.parseLong(seq);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

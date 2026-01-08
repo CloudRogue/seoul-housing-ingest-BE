@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -41,7 +42,6 @@ class ShRentalNoticeCheckerServiceTest {
     @Test
     @DisplayName("lastSeenSeq가 null이면 예외 + 의존성 호출 없음")
     void checkNewRentalNotice_nullLastSeen_throws() {
-        // when & then
         assertThatThrownBy(() -> service.checkNewRentalNotice(null))
                 .isInstanceOf(IllegalArgumentException.class);
 
@@ -51,7 +51,6 @@ class ShRentalNoticeCheckerServiceTest {
     @Test
     @DisplayName("lastSeenSeq가 blank면 예외 + 의존성 호출 없음")
     void checkNewRentalNotice_blankLastSeen_throws() {
-        // when & then
         assertThatThrownBy(() -> service.checkNewRentalNotice("   "))
                 .isInstanceOf(IllegalArgumentException.class);
 
@@ -66,9 +65,15 @@ class ShRentalNoticeCheckerServiceTest {
 
         byte[] rssBytes = "<rss/>".getBytes();
         List<ShRssItem> items = List.of(
-                new ShRssItem("298100", "임대 공고", "http://x/view.do?seq=298100")
+                new ShRssItem("298100", "임대 공고", "http://x/view.do?seq=298100", Instant.parse("2026-01-06T03:00:00Z"))
         );
-        ShRssDiffResult expected = new ShRssDiffResult(true, true, "298100");
+
+        ShRssDiffResult expected = new ShRssDiffResult(
+                true,
+                true,
+                "298100",
+                List.of(items.get(0))
+        );
 
         when(client.fetchNoticeRssBytes()).thenReturn(rssBytes);
         when(parser.parse(rssBytes)).thenReturn(items);
@@ -94,11 +99,16 @@ class ShRentalNoticeCheckerServiceTest {
 
         byte[] rssBytes = "<rss/>".getBytes();
         List<ShRssItem> items = List.of(
-                new ShRssItem("298101", "임대", "http://x/view.do?seq=298101"),
-                new ShRssItem("298100", "공지", "http://x/view.do?seq=298100")
+                new ShRssItem("298101", "임대", "http://x/view.do?seq=298101", Instant.parse("2026-01-06T04:00:00Z")),
+                new ShRssItem("298100", "공지", "http://x/view.do?seq=298100", Instant.parse("2026-01-06T03:00:00Z"))
         );
 
-        ShRssDiffResult expected = new ShRssDiffResult(false, true, "298101");
+        ShRssDiffResult expected = new ShRssDiffResult(
+                false,
+                true,
+                "298101",
+                List.of()
+        );
 
         when(client.fetchNoticeRssBytes()).thenReturn(rssBytes);
         when(parser.parse(rssBytes)).thenReturn(items);
@@ -112,6 +122,7 @@ class ShRentalNoticeCheckerServiceTest {
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ShRssItem>> captor = ArgumentCaptor.forClass(List.class);
+
         verify(diff, times(1)).diff(captor.capture(), eq(lastSeenSeq));
         assertThat(captor.getValue()).isEqualTo(items);
     }
