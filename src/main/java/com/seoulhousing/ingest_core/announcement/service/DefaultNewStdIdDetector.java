@@ -37,7 +37,7 @@ public class DefaultNewStdIdDetector implements NewStdIdDetector {
             }
         }
 
-        return newOnes;
+        return List.copyOf(newOnes);
 
 
     }
