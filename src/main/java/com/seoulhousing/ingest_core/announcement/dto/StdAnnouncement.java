@@ -2,11 +2,13 @@ package com.seoulhousing.ingest_core.announcement.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.Instant;
 
 @Getter
 @RequiredArgsConstructor
+@ToString
 public class StdAnnouncement {
 
     private final String stdId;
@@ -20,17 +22,5 @@ public class StdAnnouncement {
     private final String beginDe;
     private final String endDe;
 
-    @Override
-    public String toString() {
-        return "StdAnnouncement{" +
-                "stdId='" + stdId + '\'' +
-                ", source='" + source + '\'' +
-                ", category='" + category + '\'' +
-                ", title='" + title + '\'' +
-                ", link='" + link + '\'' +
-                ", publishedAt=" + publishedAt +
-                ", beginDe='" + beginDe + '\'' +
-                ", endDe='" + endDe + '\'' +
-                '}';
-    }
+
 }
