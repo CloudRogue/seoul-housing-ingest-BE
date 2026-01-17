@@ -1,26 +1,24 @@
-# 1. 빌드 단계 (Java 21 기준, 버전이 다르면 수정)
-FROM eclipse-temurin:21-jdk AS build
+# =========================
+# 1) Build stage
+# =========================
+FROM gradle:8.7-jdk21 AS builder
+WORKDIR /workspace
+
+# 모든 파일 복사 및 권한 부여
+COPY . .
+RUN chmod +x gradlew
+
+# 단일 프로젝트이므로 바로 bootJar 생성
+RUN ./gradlew bootJar --no-daemon
+
+# =========================
+# 2) Runtime stage
+# =========================
+FROM amazoncorretto:21-al2023-headless
 WORKDIR /app
 
-# 빌드에 필요한 파일 복사
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
-COPY src src
+# 빌드된 jar 파일 복사 (build/libs 폴더에서 직접 가져옴)
+COPY --from=builder /workspace/build/libs/*.jar app.jar
 
-# gradlew 실행 권한 부여 및 빌드
-RUN chmod +x ./gradlew
-RUN ./gradlew clean bootJar
-
-# 2. 실행 단계
-FROM eclipse-temurin:21-jre
-WORKDIR /app
-
-# 빌드 단계에서 생성된 jar 파일만 복사
-COPY --from=build /app/build/libs/*.jar app.jar
-
-# 8080 포트 개방 (파싱 서버 포트에 맞춰 수정)
 EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
