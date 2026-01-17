@@ -39,6 +39,6 @@ jobs:
       - name: Update ECS Service
         run: |
           aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-                                 --service parsing-service \
+                                 --service zipchak-parsing-task-service \
                                  --force-new-deployment \
                                  --region ${{ secrets.AWS_OIDC_REGION }}
