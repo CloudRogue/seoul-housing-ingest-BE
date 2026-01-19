@@ -11,7 +11,11 @@ import java.time.Duration;
 
 
 @Configuration
-@EnableConfigurationProperties({ExternalMyHomeProperties.class, ExternalShRssProperties.class})
+@EnableConfigurationProperties({
+        ExternalMyHomeProperties.class,
+        ExternalShRssProperties.class,
+        MainServerProperties.class
+})
 public class RestClientConfig {
 
     @Bean("myHomeRestClient")
@@ -42,6 +46,22 @@ public class RestClientConfig {
         requestFactory.setReadTimeout(Duration.ofMillis(properties.getReadTimeoutMs()));
 
         return RestClient.builder()
+                .requestFactory(requestFactory)
+                .build();
+    }
+
+    //메인 서버 ingest 호출용 RestClient
+    @Bean("mainServerRestClient")
+    public RestClient mainServerRestClient(MainServerProperties properties) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(2))
+                .build();
+
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+        requestFactory.setReadTimeout(Duration.ofSeconds(10));
+
+        return RestClient.builder()
+                .baseUrl(properties.getBaseUrl())
                 .requestFactory(requestFactory)
                 .build();
     }

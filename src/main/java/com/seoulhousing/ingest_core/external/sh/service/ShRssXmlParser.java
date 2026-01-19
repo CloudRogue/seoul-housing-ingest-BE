@@ -8,13 +8,14 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static java.nio.charset.StandardCharsets.*;
 
 // 원문을 스트리밍 방식으로 파싱해서 리스트로 변환하기
 @Component
@@ -152,7 +153,7 @@ public class ShRssXmlParser {
         int len = Math.min(bytes.length, 300);
 
         // 엔코딩 위치찾기
-        String head = new String(bytes, 0, len, StandardCharsets.UTF_8);
+        String head = new String(bytes, 0, len, ISO_8859_1);
 
         int idx = head.indexOf("encoding=");
         if (idx < 0) return null;

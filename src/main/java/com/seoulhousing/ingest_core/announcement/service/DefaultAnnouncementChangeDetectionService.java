@@ -26,15 +26,12 @@ public class DefaultAnnouncementChangeDetectionService  implements AnnouncementC
 
         // Redis에 저장된 기존 stdId들
         Set<String> seen = seenStdIdReaderPort.getSeenStdIds(source, category, scope);
-        if (seen == null) seen = Set.of();
 
         // 신규 stdId 감지
-        List<String> newStdIds =
-                newStdIdDetector.detectNewStdIds(source, category, scope, currentStdIds);
+        List<String> newStdIds = newStdIdDetector.detect(seen, currentStdIds);
 
         // 누락 stdId 감지
-        List<String> missingStdIds =
-                missingStdIdDetector.detectMissingStdIds(source, category, scope, currentStdIds);
+        List<String> missingStdIds = missingStdIdDetector.detect(seen, currentStdIds);
 
         // 결과 요약 DTO 생성
         return new ChangeDetectionResult(

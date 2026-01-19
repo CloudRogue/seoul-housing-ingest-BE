@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,6 +23,7 @@ class DefaultAnnouncementChangeDetectionServiceRedisIT {
     DefaultAnnouncementChangeDetectionService service;
 
     @Autowired
+    @Qualifier("redisStringTemplate")
     RedisTemplate<String, String> redisStringTemplate;
 
     private static final String SOURCE = "myhome";

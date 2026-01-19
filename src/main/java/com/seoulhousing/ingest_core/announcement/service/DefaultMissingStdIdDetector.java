@@ -11,13 +11,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DefaultMissingStdIdDetector implements MissingStdIdDetector{
 
-    private final SeenStdIdReaderPort seenStdIdReaderPort;
-
     @Override
-    public List<String> detectMissingStdIds(String source, String category, String scope, List<String> currentStdIds) {
-       //이미 저장된 stdId
-        Set<String> seen = seenStdIdReaderPort.getSeenStdIds(source, category, scope);
-        if (seen == null || seen.isEmpty()) {
+    public List<String> detect(Set<String> seenStdIds, List<String> currentStdIds) {
+        if (seenStdIds == null || seenStdIds.isEmpty()) {
             return List.of();
         }
 
@@ -25,7 +21,8 @@ public class DefaultMissingStdIdDetector implements MissingStdIdDetector{
         Set<String> current = normalizeToSet(currentStdIds);
 
         List<String> missing = new ArrayList<>();
-        for (String s : seen) {
+
+        for (String s : seenStdIds) {
             if (s == null) continue;
             String stdId = s.trim();
             if (stdId.isEmpty()) continue;
