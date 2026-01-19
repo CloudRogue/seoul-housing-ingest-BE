@@ -1,9 +1,11 @@
 package com.seoulhousing.ingest_core.external.sh.service;
 
-import com.seoulhousing.ingest_core.external.sh.dto.ShRssDiffResult;
+import com.seoulhousing.ingest_core.external.sh.dto.ShRssItem;
+
+import java.util.List;
 
 public interface ShRentalNoticeChecker {
 
-    //신규 임대 공고 존재 여부확인
-    ShRssDiffResult checkNewRentalNotice(String lastSeenSeq);
+    // Sh rss 전체아이템을 파싱하고 반환
+    List<ShRssItem> fetchAllItems();
 }

@@ -1,37 +1,21 @@
 package com.seoulhousing.ingest_core.announcement.service;
 
-import com.seoulhousing.ingest_core.announcement.port.SeenStdIdReaderPort;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class DefaultNewStdIdDetectorTest {
 
-    @Mock
-    SeenStdIdReaderPort seenStdIdReaderPort;
-
-    @InjectMocks
-    DefaultNewStdIdDetector detector;
+    private final DefaultNewStdIdDetector detector = new DefaultNewStdIdDetector();
 
     @Test
-    void detectNewStdIds_seen에_없고_blank가_아닌것만_신규로_골라낸다() {
+    void detect_seen에_없고_blank가_아닌것만_신규로_골라낸다() {
         // given
-        String source = "myhome";
-        String category = "rsdt";
-        String scope = "seoul";
-
-        when(seenStdIdReaderPort.getSeenStdIds(source, category, scope))
-                .thenReturn(Set.of("A", "B"));
+        Set<String> seen = Set.of("A", "B");
 
         // List.of는 null 금지라서 Arrays.asList 사용
         List<String> currentStdIds = Arrays.asList(
@@ -45,12 +29,39 @@ class DefaultNewStdIdDetectorTest {
         );
 
         // when
-        List<String> result = detector.detectNewStdIds(source, category, scope, currentStdIds);
+        List<String> result = detector.detect(seen, currentStdIds);
 
         // then
         assertThat(result).containsExactly("C", "D");
+    }
 
-        verify(seenStdIdReaderPort, times(1)).getSeenStdIds(source, category, scope);
-        verifyNoMoreInteractions(seenStdIdReaderPort);
+    @Test
+    void detect_current가_null이면_빈리스트() {
+        // when
+        List<String> result = detector.detect(Set.of("A"), null);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void detect_current가_비어있으면_빈리스트() {
+        // when
+        List<String> result = detector.detect(Set.of("A"), List.of());
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void detect_seen이_null이면_전부신규로간주() {
+        // given
+        List<String> currentStdIds = Arrays.asList("A", " B ", null, "  ");
+
+        // when
+        List<String> result = detector.detect(null, currentStdIds);
+
+        // then
+        assertThat(result).containsExactly("A", "B");
     }
 }

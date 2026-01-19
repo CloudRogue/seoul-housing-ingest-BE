@@ -3,6 +3,7 @@ package com.seoulhousing.ingest_core.announcement.adapter;
 import com.seoulhousing.ingest_core.announcement.port.SeenStdIdReaderPort;
 import com.seoulhousing.ingest_core.config.EnvProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,8 +14,9 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 public class RedisSeenStdIdReaderAdapter  implements SeenStdIdReaderPort {
-
+    @Qualifier("redisStringTemplate")
     private final RedisTemplate<String, String> redisStringTemplate;
+
     private final EnvProvider envProvider;
 
     @Override

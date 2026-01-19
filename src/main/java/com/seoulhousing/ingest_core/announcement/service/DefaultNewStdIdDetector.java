@@ -12,18 +12,15 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class DefaultNewStdIdDetector implements NewStdIdDetector {
 
-    private final SeenStdIdReaderPort seenStdIdReaderPort;
 
     @Override
-    public List<String> detectNewStdIds(String source, String category, String scope, List<String> currentStdIds) {
+    public List<String> detect(Set<String> seenStdIds, List<String> currentStdIds) {
 
         if (currentStdIds == null || currentStdIds.isEmpty()) {
             return List.of();
         }
 
-        // Redis에 저장된 이미 본 stdId
-        Set<String> seen = seenStdIdReaderPort.getSeenStdIds(source, category, scope);
-        if (seen == null) seen = Set.of();
+        Set<String> seen = (seenStdIds == null) ? Set.of() : seenStdIds;
 
 
         List<String> newOnes = new ArrayList<>();

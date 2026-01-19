@@ -7,4 +7,12 @@ public interface StdIdGenerator {
 
     // SH Rss 표준 Id 생성
     String shRss(String seq);
+
+    default String myhomeOrNull(String category, String pblancId, String houseSn) {
+        try {
+            return myhome(category, pblancId, houseSn);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
 }

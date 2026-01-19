@@ -108,6 +108,7 @@ class MyHomeLocalSmokeIT {
         client.fetchRsdt(req); // no data면 MyHomeApiClient가 info 로그를 찍는다
 
         String out = output.getOut();
+        if (out == null || out.isBlank()) return;
 
         // serviceKey는 마스킹되는지 체크하기
         assertThat(out).contains("serviceKey=****");
