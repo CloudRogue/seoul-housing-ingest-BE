@@ -1,0 +1,43 @@
+server:
+  port: ${INGEST_CORE_SERVER_PORT}
+
+spring:
+  application:
+    name: ${INGEST_CORE_APP_NAME}
+
+  profiles:
+    active: ${INGEST_CORE_PROFILE}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+main-server:
+  base-url: ${MAIN_SERVER_BASE_URL}
+  ingest-path: ${MAIN_SERVER_INGEST_PATH}
+
+external:
+  myhome:
+    base-url: ${EXTERNAL_MYHOME_BASE_URL}
+    service-key: ${EXTERNAL_MYHOME_SERVICE_KEY}
+    connect-timeout-ms: ${EXTERNAL_MYHOME_CONNECT_TIMEOUT_MS}
+    read-timeout-ms: ${EXTERNAL_MYHOME_READ_TIMEOUT_MS}
+
+  sh:
+    rss:
+      notice-url: ${EXTERNAL_SH_RSS_NOTICE_URL}
+      connect-timeout-ms: ${EXTERNAL_SH_RSS_CONNECT_TIMEOUT_MS}
+      read-timeout-ms: ${EXTERNAL_SH_RSS_READ_TIMEOUT_MS}
+
+ingest:
+  scope: ${INGEST_SCOPE}
+
+  myhome:
+    num-of-rows: ${INGEST_MYHOME_NUM_OF_ROWS}
+    category-rsdt: ${INGEST_MYHOME_CATEGORY_RSDT}
+    category-ltrsdt: ${INGEST_MYHOME_CATEGORY_LTRSDT}
+
+  sh:
+    category: ${INGEST_SH_CATEGORY}
+    seed-limit: ${INGEST_SH_SEED_LIMIT}
