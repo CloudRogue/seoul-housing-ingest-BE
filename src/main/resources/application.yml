@@ -12,6 +12,8 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+    ssl:
+      enabled: true
 
 main-server:
   base-url: ${MAIN_SERVER_BASE_URL}
